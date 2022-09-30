@@ -1,6 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class Main {
 
@@ -10,16 +8,46 @@ public class Main {
     private static final String DB_PASS = "jw8s0F4";
 
     public static void main(String[] args) {
+        ResultSet rs;
+        String query = "SELECT l.brand, l.length, c.color_name as Цвет,\n" +
+                "       siz.size_name as Размер,\n" +
+                "       s.style_name as Стиль, l.isnatural as Натуральные,\n" +
+                "       cat.category_name AS Категория from leatherclothes l\n" +
+                "                                               JOIN style s on l.style_id = s.style_id\n" +
+                "                                               JOIN color c on c.color_id = l.color_id\n" +
+                "                                               JOIN category cat on l.category_id = cat.category_id\n" +
+                "                                               JOIN size siz on siz.size_id = l.size_id\n" +
+                "                                               JOIN manufacturer m on l.manufacturer_id = m.manufacturer_id\n" +
+                "WHERE m.manufacturer_name = 'Россия';";
+        try {
+            loadDriver();
+            Connection connection;
 
-        loadDriver();
-        Connection connection;
-        connection = getConnection();
+            connection = getConnection();
 
-        if (connection != null) {
-            System.out.println("You successfully connected to database now");
+            if (connection != null) {
+                System.out.println("You successfully connected to database now");
 
-        } else {
-            System.out.println("Failed to make connection to database");
+                rs = makeQuery(query, connection);
+                System.out.println("\nВыводим из базы leathercollection те поля в связанных таблицах, где производитель 'Россия':");
+                while (rs.next()) {
+                    String brand = rs.getString("brand");
+                    int length = rs.getInt("length");
+                    String color = rs.getString("Цвет");
+                    String size = rs.getString("Размер");
+                    String style = rs.getString("Стиль");
+
+                    String cat = rs.getString("Категория");
+                    System.out.printf("%s\t%d\t%s\t%s\t%s\t%s\n", brand, length, color, size, style, cat);
+
+                }
+
+            } else {
+                System.out.println("Failed to make connection to database");
+            }
+        } catch (SQLException e) {
+            System.out.println("Unable to display dataset :(");
+            e.printStackTrace();
         }
 
 
@@ -51,5 +79,16 @@ public class Main {
         }
     }
 
+    private static ResultSet makeQuery(String query, Connection connection) {
+        Statement stmt;
+        ResultSet rs = null;
+        try {
+            stmt = connection.createStatement();
+            rs = stmt.executeQuery(query);
+        } catch (SQLException e) {
+            System.out.println("Execution failed :(");
+        }
+        return  rs;
 
+    }
 }
