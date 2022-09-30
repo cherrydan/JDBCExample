@@ -9,6 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         ResultSet rs;
+        Connection connection;
         String query = "SELECT l.brand, l.length, c.color_name as Цвет,\n" +
                 "       siz.size_name as Размер,\n" +
                 "       s.style_name as Стиль, l.isnatural as Натуральные,\n" +
@@ -21,7 +22,7 @@ public class Main {
                 "WHERE m.manufacturer_name = 'Россия';";
         try {
             loadDriver();
-            Connection connection;
+
 
             connection = getConnection();
 
@@ -29,7 +30,8 @@ public class Main {
                 System.out.println("You successfully connected to database now");
 
                 rs = makeQuery(query, connection);
-                System.out.println("\nВыводим из базы leathercollection те поля в связанных таблицах, где производитель 'Россия':");
+                System.out.println("\nВыводим из базы leathercollection те поля в связанных таблицах, где производитель " +
+                        " указан как 'Россия':");
                 while (rs.next()) {
                     String brand = rs.getString("brand");
                     int length = rs.getInt("length");
@@ -41,6 +43,8 @@ public class Main {
                     System.out.printf("%s\t%d\t%s\t%s\t%s\t%s\n", brand, length, color, size, style, cat);
 
                 }
+                rs.close();
+                connection.close();
 
             } else {
                 System.out.println("Failed to make connection to database");
@@ -49,8 +53,6 @@ public class Main {
             System.out.println("Unable to display dataset :(");
             e.printStackTrace();
         }
-
-
     }
 
     private static void loadDriver() {
@@ -85,6 +87,7 @@ public class Main {
         try {
             stmt = connection.createStatement();
             rs = stmt.executeQuery(query);
+
         } catch (SQLException e) {
             System.out.println("Execution failed :(");
         }
