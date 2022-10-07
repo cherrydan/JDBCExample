@@ -8,8 +8,12 @@ public class Main {
     private static final String DB_PASS = "jw8s0F4";
 
     public static void main(String[] args) {
-        ResultSet rs;
-        Connection connection;
+
+        readFromDB();
+    }
+
+    private static void readFromDB() {
+
         String query = "SELECT l.brand, l.length, c.color_name as Цвет,\n" +
                 "       siz.size_name as Размер,\n" +
                 "       s.style_name as Стиль, l.isnatural as Натуральные,\n" +
@@ -24,12 +28,12 @@ public class Main {
             loadDriver();
 
 
-            connection = getConnection();
+            Connection connection = getConnection();
 
             if (connection != null) {
                 System.out.println("You successfully connected to database now");
 
-                rs = makeQuery(query, connection);
+                ResultSet rs = makeQuery(query, connection);
                 System.out.println("\nВыводим из базы leathercollection те поля в связанных таблицах, где производитель " +
                         " указан как 'Россия':");
                 while (rs.next()) {
@@ -40,7 +44,8 @@ public class Main {
                     String style = rs.getString("Стиль");
 
                     String cat = rs.getString("Категория");
-                    System.out.printf("%s\t%d\t%s\t%s\t%s\t%s\n", brand, length, color, size, style, cat);
+                    System.out.printf("Бренд: %s\tДлина: %d\tЦвет: %s\tРазмер: %s\tСтиль: %s\tКатегория: %s\n",
+                            brand, length, color, size, style, cat);
 
                 }
                 rs.close();
