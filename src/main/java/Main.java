@@ -1,5 +1,8 @@
 import java.sql.*;
-
+//Три метода чтобы показать возможности JDBC -
+// readFromDB - выводит некоторую информацию из связанных таблиц
+// writeToLeatherClothes - добавляет информацию об одной вещи и присваивает ей id 9
+// deleteWhereIdIs9 - и так ясно
 public class Main {
 
     private static final String DB_DRIVER =  "org.postgresql.Driver";
@@ -11,20 +14,24 @@ public class Main {
 
         // readFromDB();
         // writeToLeatherClothes();
+        deleteWhereIdIs9();
+
     }
 
-    private static void writeToLeatherClothes() {
-        String insertQuery = "INSERT INTO leatherclothes\n" +
-                "                (id, brand, length, isnatural, description, category_id, color_id, manufacturer_id, size_id, style_id)\n" +
-                "                VALUES (9, 'Seduction', 37, true, 'Юбочка из кожи в треш-металлическом стиле с клёпками', 1, 1, 2,\n" +
-                "                4, 2);";
+    private static void deleteWhereIdIs9() {
+        String deleteQuery = "DELETE FROM leatherclothes WHERE id=9";
+        deleteQuery(deleteQuery);
+
+    }
+
+    private static void deleteQuery(String deleteQuery) {
         try {
             loadDriver();
             Connection connection = getConnection();
             if (connection != null) {
                 System.out.println("You succesfully connected to database now...");
                 Statement stmt = connection.createStatement();
-                stmt.executeUpdate(insertQuery);
+                stmt.executeUpdate(deleteQuery);
                 stmt.close();
                 connection.close();
             }
@@ -36,8 +43,14 @@ public class Main {
             System.out.println("Cannot add data to table");
             e.printStackTrace();
         }
+    }
 
-
+    private static void writeToLeatherClothes() {
+        String insertQuery = "INSERT INTO leatherclothes\n" +
+                "                (id, brand, length, isnatural, description, category_id, color_id, manufacturer_id, size_id, style_id)\n" +
+                "                VALUES (9, 'Seduction', 37, true, 'Юбочка из кожи в треш-металлическом стиле с клёпками', 1, 1, 2,\n" +
+                "                4, 2);";
+        deleteQuery(insertQuery);
 
 
     }
