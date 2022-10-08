@@ -9,7 +9,37 @@ public class Main {
 
     public static void main(String[] args) {
 
-        readFromDB();
+        // readFromDB();
+        // writeToLeatherClothes();
+    }
+
+    private static void writeToLeatherClothes() {
+        String insertQuery = "INSERT INTO leatherclothes\n" +
+                "                (id, brand, length, isnatural, description, category_id, color_id, manufacturer_id, size_id, style_id)\n" +
+                "                VALUES (9, 'Seduction', 37, true, 'Юбочка из кожи в треш-металлическом стиле с клёпками', 1, 1, 2,\n" +
+                "                4, 2);";
+        try {
+            loadDriver();
+            Connection connection = getConnection();
+            if (connection != null) {
+                System.out.println("You succesfully connected to database now...");
+                Statement stmt = connection.createStatement();
+                stmt.executeUpdate(insertQuery);
+                stmt.close();
+                connection.close();
+            }
+            else {
+                System.out.println("Failed to make connection to database (");
+            }
+        }
+        catch (SQLException e) {
+            System.out.println("Cannot add data to table");
+            e.printStackTrace();
+        }
+
+
+
+
     }
 
     private static void readFromDB() {
@@ -38,13 +68,13 @@ public class Main {
                         " указан как 'Россия':");
                 while (rs.next()) {
                     String brand = rs.getString("brand");
-                    int length = rs.getInt("length");
+                    float length = rs.getFloat("length");
                     String color = rs.getString("Цвет");
                     String size = rs.getString("Размер");
                     String style = rs.getString("Стиль");
 
                     String cat = rs.getString("Категория");
-                    System.out.printf("Бренд: %s\tДлина: %d\tЦвет: %s\tРазмер: %s\tСтиль: %s\tКатегория: %s\n",
+                    System.out.printf("Бренд: %s\tДлина: %.1f\tЦвет: %s\tРазмер: %s\tСтиль: %s\tКатегория: %s\n",
                             brand, length, color, size, style, cat);
 
                 }
