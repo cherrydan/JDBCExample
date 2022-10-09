@@ -1,4 +1,7 @@
 import java.sql.*;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
 //Три метода чтобы показать возможности JDBC -
 // readFromDB - выводит некоторую информацию из связанных таблиц
 // writeToLeatherClothes - добавляет информацию об одной вещи и присваивает ей id 9
@@ -12,9 +15,34 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // readFromDB();
-        // writeToLeatherClothes();
-        deleteWhereIdIs9();
+        System.out.println("Welcome to console JDBC PostgreSQL driver demo!");
+        System.out.println("Choose action: ");
+        System.out.println("Read some info from database        press 1");
+        System.out.println("Add 9-th record to database         press 2");
+        System.out.println("Delete 9-th record from database    press 3");
+
+        System.out.print("--> ");
+        try (Scanner sc = new Scanner(System.in)) {
+            int choice = sc.nextInt();
+            switch (choice) {
+                case 1:
+                    readFromDB();
+                    break;
+                case 2:
+                    writeToLeatherClothes();
+                    break;
+                case 3:
+                    deleteWhereIdIs9();
+                    break;
+                default:
+                    System.out.println("You must input 1 or 2 or 3!");
+
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input!");
+            e.printStackTrace();
+        }
+
 
     }
 
