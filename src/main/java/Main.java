@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.InputMismatchException;
+import java.util.Objects;
 import java.util.Scanner;
 
 //Три метода чтобы показать возможности JDBC -
@@ -8,6 +9,23 @@ import java.util.Scanner;
 // deleteWhereIdIs9 - и так ясно
 public class Main {
 
+    private static final String insertQuery = "INSERT INTO leatherclothes\n" +
+            "                (id, brand, length, isnatural, description, category_id, color_id, manufacturer_id, size_id, style_id)\n" +
+            "                VALUES (9, 'Seduction', 37, true, 'Юбочка из кожи в треш-металлическом стиле с клёпками', 1, 1, 2,\n" +
+            "                4, 2);";
+    private static final String selectQuery = "SELECT * FROM leatherclothes WHERE id=9";
+    private static final String query = "SELECT l.brand, l.length, c.color_name as Цвет,\n" +
+            "       siz.size_name as Размер,\n" +
+            "       s.style_name as Стиль, l.isnatural as Натуральные,\n" +
+            "       cat.category_name AS Категория from leatherclothes l\n" +
+            "                                               JOIN style s on l.style_id = s.style_id\n" +
+            "                                               JOIN color c on c.color_id = l.color_id\n" +
+            "                                               JOIN category cat on l.category_id = cat.category_id\n" +
+            "                                               JOIN size siz on siz.size_id = l.size_id\n" +
+            "                                               JOIN manufacturer m on l.manufacturer_id = m.manufacturer_id\n" +
+            "WHERE m.manufacturer_name = 'Россия';";
+
+    private static final String deleteQuery = "DELETE FROM leatherclothes WHERE id=9";
     private static final String DB_DRIVER =  "org.postgresql.Driver";
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/leathercollection";
     private static final String DB_USER = "danny";
@@ -47,19 +65,20 @@ public class Main {
     }
 
     private static void deleteWhereIdIs9() {
-        String deleteQuery = "DELETE FROM leatherclothes WHERE id=9";
-        deleteQuery(deleteQuery);
+        runQuery(deleteQuery);
+        System.out.println("Record with id 9 has been deleted succesfully");
 
     }
 
-    private static void deleteQuery(String deleteQuery) {
+    private static void runQuery(String Query) {
+        Connection connection = getConnection();
         try {
             loadDriver();
-            Connection connection = getConnection();
+
             if (connection != null) {
                 System.out.println("You succesfully connected to database now...");
                 Statement stmt = connection.createStatement();
-                stmt.executeUpdate(deleteQuery);
+                stmt.executeUpdate(Query);
                 stmt.close();
                 connection.close();
             }
@@ -71,30 +90,28 @@ public class Main {
             System.out.println("Cannot add data to table");
             e.printStackTrace();
         }
+
     }
 
     private static void writeToLeatherClothes() {
-        String insertQuery = "INSERT INTO leatherclothes\n" +
-                "                (id, brand, length, isnatural, description, category_id, color_id, manufacturer_id, size_id, style_id)\n" +
-                "                VALUES (9, 'Seduction', 37, true, 'Юбочка из кожи в треш-металлическом стиле с клёпками', 1, 1, 2,\n" +
-                "                4, 2);";
-        deleteQuery(insertQuery);
 
+        runQuery(insertQuery);
+        ResultSet rs = makeQuery(selectQuery, Objects.requireNonNull(getConnection()));
+        try {
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                System.out.printf("Id добавленой записи в БД = %d\n", id);
+
+            }
+        }
+    catch(SQLException e) {
+            System.out.println("Cannot load data...");
+            e.printStackTrace();
+    }
 
     }
 
     private static void readFromDB() {
-
-        String query = "SELECT l.brand, l.length, c.color_name as Цвет,\n" +
-                "       siz.size_name as Размер,\n" +
-                "       s.style_name as Стиль, l.isnatural as Натуральные,\n" +
-                "       cat.category_name AS Категория from leatherclothes l\n" +
-                "                                               JOIN style s on l.style_id = s.style_id\n" +
-                "                                               JOIN color c on c.color_id = l.color_id\n" +
-                "                                               JOIN category cat on l.category_id = cat.category_id\n" +
-                "                                               JOIN size siz on siz.size_id = l.size_id\n" +
-                "                                               JOIN manufacturer m on l.manufacturer_id = m.manufacturer_id\n" +
-                "WHERE m.manufacturer_name = 'Россия';";
         try {
             loadDriver();
 
@@ -157,12 +174,12 @@ public class Main {
         }
     }
 
-    private static ResultSet makeQuery(String query, Connection connection) {
+    private static ResultSet makeQuery(String Query, Connection connection) {
         Statement stmt;
         ResultSet rs = null;
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery(query);
+            rs = stmt.executeQuery(Query);
 
         } catch (SQLException e) {
             System.out.println("Execution failed :(");
